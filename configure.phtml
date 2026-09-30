@@ -1,0 +1,46 @@
+<?php
+declare(strict_types=1);
+/** @var XProfilesExtension $this */
+$convertible = $this->convertFeeds(dryRun: true);
+?>
+<p><?= _t('ext.x_profiles.intro') ?></p>
+<form action="<?= _url('extension', 'configure', 'e', urlencode($this->getName())) ?>" method="post">
+	<input type="hidden" name="_csrf" value="<?= FreshRSS_Auth::csrfToken() ?>" />
+	<div class="form-group">
+		<label class="group-name" for="ttl_minutes"><?= _t('ext.x_profiles.ttl') ?></label>
+		<div class="group-controls">
+			<select id="ttl_minutes" name="ttl_minutes">
+				<?php foreach (XProfilesExtension::TTL_CHOICES as $minutes) { ?>
+				<option value="<?= $minutes ?>"<?= $minutes === $this->ttlMinutes() ? ' selected="selected"' : '' ?>><?=
+					$minutes === 0 ? _t('ext.x_profiles.ttl_freshrss') : ($minutes < 60
+						? _t('ext.x_profiles.minutes', $minutes) : _t('ext.x_profiles.hours', intdiv($minutes, 60)))
+				?></option>
+				<?php } ?>
+			</select>
+			<p class="help"><?= _i('help') ?> <?= _t('ext.x_profiles.ttl_help') ?></p>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="group-controls">
+			<label class="checkbox" for="mirrors">
+				<input type="checkbox" id="mirrors" name="mirrors" value="1"<?= $this->mirrorsEnabled() ? ' checked="checked"' : '' ?> />
+				<?= _t('ext.x_profiles.mirrors') ?>
+			</label>
+			<p class="help"><?= _i('help') ?> <?= _t('ext.x_profiles.mirrors_help') ?></p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="group-name"><?= _t('ext.x_profiles.convert.title') ?></label>
+		<div class="group-controls">
+			<button type="submit" class="btn" name="x_action" value="convert"<?= $convertible === 0 ? ' disabled="disabled"' : '' ?>><?=
+				_t('ext.x_profiles.convert.button', $convertible) ?></button>
+			<p class="help"><?= _i('help') ?> <?= _t('ext.x_profiles.convert.help') ?></p>
+		</div>
+	</div>
+	<div class="form-group form-actions">
+		<div class="group-controls">
+			<button type="submit" class="btn btn-important"><?= _t('gen.action.submit') ?></button>
+			<button type="reset" class="btn"><?= _t('gen.action.cancel') ?></button>
+		</div>
+	</div>
+</form>
