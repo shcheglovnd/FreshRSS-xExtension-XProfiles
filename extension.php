@@ -67,7 +67,9 @@ final class XProfilesExtension extends Minz_Extension {
 		}
 
 		$profileUrl = XProfilesPage::profileUrl($user);
-		$response = FreshRSS_http_Util::httpGet($profileUrl, $feed->cacheFilename($profileUrl), 'html', $feed->attributes(), $feed->curlOptions());
+		// As `json` rather than `html`: FreshRSS would re-serialise an HTML page through DOMDocument, which turns the
+		// non-ASCII characters of the posts embedded in it into HTML entities (’ into &rsquo;). X serves the same page.
+		$response = FreshRSS_http_Util::httpGet($profileUrl, $feed->cacheFilename($profileUrl), 'json', $feed->attributes(), $feed->curlOptions());
 		$body = $response['body'];
 		if ($response['fail'] || $body === '') {
 			// `status` and `error` are only returned since FreshRSS 1.29
@@ -87,9 +89,11 @@ final class XProfilesExtension extends Minz_Extension {
 			throw new FreshRSS_Feed_Exception(_t('ext.x_profiles.error.no_timeline', $user, $profileUrl));
 		}
 
-		$file = \SimplePie\File::fromResponse(new \SimplePie\HTTP\RawTextResponse(XProfilesRss::build($data), $url));
+		// With a Content-Type rather than force_feed(true), which would make SimplePie cache the feed under another name
+		// than the one FreshRSS reads the time of the last refresh from
+		$response = (new \SimplePie\HTTP\RawTextResponse(XProfilesRss::build($data), $url))->with_header('content-type', 'application/rss+xml; charset=UTF-8');
+		$file = \SimplePie\File::fromResponse($response);
 		$simplePie->set_file($file);
-		$simplePie->force_feed(true);   // the body has no Content-Type for SimplePie to recognise; it is our own RSS
 	}
 
 	/**

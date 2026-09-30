@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2 — 2026-09-30
+
+* Fixed: typographic characters and emoji in posts appeared as HTML entities, e.g. “We&rsquo;re” instead of “We’re”. FreshRSS’s HTTP client re-serialised the profile page as HTML, which encoded every non-ASCII character of the posts embedded in it; the page is now fetched as it is.
+* FreshRSS now records the time of each refresh reliably. The feed is handed to SimplePie with a Content-Type instead of `force_feed`, which made SimplePie cache it under another name.
+
 ## 0.1.1 — 2026-09-29
 
 * A page without posts is no longer kept in FreshRSS’s cache, so the next refresh fetches afresh instead of reusing it for up to ~13 minutes.
