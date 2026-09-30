@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 — 2026-09-29
+
+* A page without posts is no longer kept in FreshRSS’s cache, so the next refresh fetches afresh instead of reusing it for up to ~13 minutes.
+
 ## 0.1.0 — 2026-09-29
 
 First release.

@@ -79,6 +79,11 @@ final class XProfilesExtension extends Minz_Extension {
 		}
 		$data = XProfilesPage::parse($body, $user, $this->labels());
 		if ($data === null) {
+			// Do not let FreshRSS’s cache serve this page again at the next refresh
+			$cache = $feed->cacheFilename($profileUrl);
+			if (is_file($cache)) {
+				unlink($cache);
+			}
 			throw new FreshRSS_Feed_Exception(_t('ext.x_profiles.error.no_timeline', $user, $profileUrl));
 		}
 
