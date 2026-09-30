@@ -30,10 +30,12 @@ X accounts. This extension needs nothing but FreshRSS itself.
 
 ## Install
 
-1. Download this repository: *Code → Download ZIP*, or
-   `git clone https://github.com/shcheglovnd/xExtension-XProfiles.git`.
-2. Put the `xExtension-XProfiles` folder into the `extensions/` directory of your FreshRSS. With the
-   official Docker image that is the volume mounted at `/var/www/FreshRSS/extensions`.
+1. Download this repository into a folder named `xExtension-XProfiles`, either
+   `git clone https://github.com/shcheglovnd/FreshRSS-xExtension-XProfiles.git xExtension-XProfiles`, or
+   *Code → Download ZIP* and rename the extracted folder. FreshRSS accepts any folder name;
+   `xExtension-…` is just the convention.
+2. Put that folder into the `extensions/` directory of your FreshRSS. With the official Docker
+   image that is the volume mounted at `/var/www/FreshRSS/extensions`.
 3. In FreshRSS: *Settings → Extensions*, then enable **X Profiles**. It is a per-user extension.
 
 Requires FreshRSS **1.28 or newer**.
