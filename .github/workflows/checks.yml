@@ -1,0 +1,50 @@
+name: Feed checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '23 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Parser and live profiles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Offline parser and RSS regression checks
+        run: >-
+          docker run --rm
+          --user "$(id -u):$(id -g)"
+          --volume "$PWD:/work" --workdir /work
+          --entrypoint php freshrss/freshrss:1.30.0 tests/parser.php
+
+      - name: Check live X profiles
+        if: github.event_name != 'pull_request'
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --volume "$PWD:/work" --workdir /work \
+            --volume "$GITHUB_STEP_SUMMARY:/tmp/summary.md" \
+            --env GITHUB_ACTIONS=true \
+            --env GITHUB_STEP_SUMMARY=/tmp/summary.md \
+            --env XPROFILES_DIAGNOSTICS_DIR=artifacts/live-check \
+            --entrypoint php freshrss/freshrss:1.30.0 tests/live.php
+
+      - name: Save failed live-check diagnostics
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: live-check-diagnostics
+          path: artifacts/live-check/
+          if-no-files-found: ignore
+          retention-days: 7

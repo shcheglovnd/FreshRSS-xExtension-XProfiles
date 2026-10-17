@@ -103,6 +103,26 @@ php tests/preview.php saved-page.html Meta
 php tests/preview.php Meta --rss            # print the generated RSS
 ```
 
+## Automated checks
+
+[Feed checks](https://github.com/shcheglovnd/FreshRSS-xExtension-XProfiles/actions/workflows/checks.yml)
+runs every day at **13:23 UTC**, on pushes to `main`, and manually through **Run workflow**.
+It checks the real logged-out pages for **deepseek_ai** and **Meta** using PHP from the FreshRSS
+1.30.0 image. Each must produce at least one post with content, author, a valid URL and date, and
+valid RSS. No recent-post cutoff is used, so quiet accounts do not trigger false alarms.
+Failed requests or parsing checks are retried twice. On failure, the run saves public profile
+pages, response metadata and generated RSS as diagnostic artifacts for 7 days.
+
+The offline regression checks also run on pull requests. Live requests are skipped on pull
+requests. To run the live check locally, use `php tests/live.php` (requires cURL, DOM and mbstring),
+or diagnose a saved response with `php tests/live.php --file page.html deepseek_ai`.
+
+Failed runs appear in Actions. Enable failure notifications for Actions in your
+[GitHub notification settings](https://github.com/settings/notifications) for email alerts.
+GitHub can delay scheduled runs and automatically disables schedules in public repositories
+after 60 days without repository activity; see the
+[schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
+
 ## License
 
 [MIT](LICENSE)
