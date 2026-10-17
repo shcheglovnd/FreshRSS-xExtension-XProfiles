@@ -86,12 +86,14 @@ All of them are stored as `https://x.com/Meta`.
   * The page embeds the GraphQL response for the profile timeline, serialised by
     [seroval](https://github.com/lxsmnsyc/seroval) as a JavaScript literal.
     `XProfilesPage` decodes it with a small strict reader: no `eval`, and anything unexpected fails
-    cleanly.
+    cleanly. Both embedded objects and JSON strings in `Result.Ok.value` are supported.
   * `XProfilesRss` renders RSS 2.0, and the result is given to SimplePie as the feed body, so FreshRSS
     then handles it like any other feed.
 * `feed_before_insert` applies the refresh interval to newly added profiles.
 
 ## Development
+
+Run the offline parser and RSS regression checks with `php tests/parser.php`.
 
 `tests/preview.php` runs the parser without FreshRSS:
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 — 2026-10-17
+
+* Fixed: X changed the embedded timeline transport to a JSON string inside `Result.Ok.value`, causing new subscriptions and existing feeds to report “no posts found”. Both the original object format and the JSON-string format are now supported.
+* Added offline regression checks for both transports, Unicode, photos, valid RSS, and malformed responses under FreshRSS’s PCRE limit.
+
 ## 0.1.2 — 2026-09-30
 
 * Fixed: typographic characters and emoji in posts appeared as HTML entities, e.g. “We&rsquo;re” instead of “We’re”. FreshRSS’s HTTP client re-serialised the profile page as HTML, which encoded every non-ASCII character of the posts embedded in it; the page is now fetched as it is.

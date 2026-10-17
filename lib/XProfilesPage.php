@@ -328,6 +328,11 @@ final class XProfilesPage {
 		if (!is_array($node) || $depth > 12) {
 			return null;
 		}
+		// X also sends Result.Ok.value as a JSON string instead of an embedded object.
+		// Decode only this transport envelope; arbitrary strings in posts are never parsed.
+		if (($node['kind'] ?? null) === 'Result.Ok' && is_string($node['value'] ?? null)) {
+			$node['value'] = json_decode($node['value'], true, self::MAX_DEPTH);
+		}
 		if (is_array($node['timeline'] ?? null) && is_array($node['timeline']['instructions'] ?? null)) {
 			return $node['timeline']['instructions'];
 		}
