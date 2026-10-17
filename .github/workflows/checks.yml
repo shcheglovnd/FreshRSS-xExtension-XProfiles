@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  checks:
-    name: Parser and live profiles
+  regression:
+    name: Parser regression checks
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -28,17 +28,28 @@ jobs:
           --volume "$PWD:/work" --workdir /work
           --entrypoint php freshrss/freshrss:1.30.0 tests/parser.php
 
+  live:
+    name: Live X profiles on minis
+    needs: regression
+    # The live runner accepts only this repository's trusted main branch, never PRs or forks.
+    if: >-
+      github.repository == 'shcheglovnd/FreshRSS-xExtension-XProfiles' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push')
+    runs-on: [xprofiles-live]
+    timeout-minutes: 5
+    concurrency:
+      group: xprofiles-live
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Check live X profiles
-        if: github.event_name != 'pull_request'
-        run: |
-          docker run --rm \
-            --user "$(id -u):$(id -g)" \
-            --volume "$PWD:/work" --workdir /work \
-            --volume "$GITHUB_STEP_SUMMARY:/tmp/summary.md" \
-            --env GITHUB_ACTIONS=true \
-            --env GITHUB_STEP_SUMMARY=/tmp/summary.md \
-            --env XPROFILES_DIAGNOSTICS_DIR=artifacts/live-check \
-            --entrypoint php freshrss/freshrss:1.30.0 tests/live.php
+        env:
+          XPROFILES_DIAGNOSTICS_DIR: artifacts/live-check
+        run: php tests/live.php
 
       - name: Save failed live-check diagnostics
         if: failure()

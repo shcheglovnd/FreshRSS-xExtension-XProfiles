@@ -107,14 +107,21 @@ php tests/preview.php Meta --rss            # print the generated RSS
 
 [Feed checks](https://github.com/shcheglovnd/FreshRSS-xExtension-XProfiles/actions/workflows/checks.yml)
 runs every day at **13:23 UTC**, on pushes to `main`, and manually through **Run workflow**.
-It checks the real logged-out pages for **deepseek_ai** and **Meta** using PHP from the FreshRSS
-1.30.0 image. Each must produce at least one post with content, author, a valid URL and date, and
+It checks the real logged-out pages for **deepseek_ai** and **Meta**. Each must produce at least
+one post with content, author, a valid URL and date, and
 valid RSS. No recent-post cutoff is used, so quiet accounts do not trigger false alarms.
 Failed requests or parsing checks are retried twice. On failure, the run saves public profile
 pages, response metadata and generated RSS as diagnostic artifacts for 7 days.
 
-The offline regression checks also run on pull requests. Live requests are skipped on pull
-requests. To run the live check locally, use `php tests/live.php` (requires cURL, DOM and mbstring),
+Offline regression checks run in the FreshRSS 1.30.0 image on GitHub-hosted runners, including
+on pull requests. X challenges GitHub-hosted IP addresses, so live requests run on the dedicated
+`xprofiles-live` runner on minis. GitHub still schedules the job and records its results. That
+runner is isolated in a container without access to the host's files or Docker socket. Live jobs
+accept only this repository's `main` branch on pushes, schedules and manual dispatches; a runner
+hook also rejects other events and refs before steps run. All external contributors require
+approval before their workflows can run.
+
+To run the live check locally, use `php tests/live.php` (requires cURL, DOM and mbstring),
 or diagnose a saved response with `php tests/live.php --file page.html deepseek_ai`.
 
 Failed runs appear in Actions. Enable failure notifications for Actions in your
